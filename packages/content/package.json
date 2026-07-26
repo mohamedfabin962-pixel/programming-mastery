@@ -1,0 +1,11 @@
+{
+  "name": "@repo/content",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "echo 'content build'",
+    "lint": "eslint .",
+    "format": "prettier --check ."
+  }
+}

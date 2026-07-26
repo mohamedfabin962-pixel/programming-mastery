@@ -1,0 +1,12 @@
+{
+  "name": "@repo/client",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "echo 'client dev'",
+    "build": "echo 'client build'",
+    "lint": "eslint .",
+    "format": "prettier --check ."
+  }
+}

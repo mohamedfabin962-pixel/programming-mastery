@@ -1,0 +1,12 @@
+{
+  "name": "@repo/api",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "echo 'api dev'",
+    "build": "echo 'api build'",
+    "lint": "eslint .",
+    "format": "prettier --check ."
+  }
+}
