@@ -73,13 +73,14 @@ Future considerations
 
 # Decision Registry
 
-| ADR      | Title                          | Status   | Area                |
-| -------- | ------------------------------ | -------- | ------------------- |
-| ADR-0001 | Repository Structure           | Accepted | Architecture        |
-| ADR-0002 | Runtime Sandbox Model          | Accepted | Architecture        |
-| ADR-0003 | Learning Path Architecture     | Accepted | Product             |
-| ADR-0004 | Mastery-Based Progress         | Accepted | Product             |
-| ADR-0005 | Dedicated Backend Architecture | Accepted | System Architecture |
+| ADR      | Title                          | Status   | Area                      |
+| -------- | ------------------------------ | -------- | ------------------------- |
+| ADR-0001 | Repository Structure           | Accepted | Architecture              |
+| ADR-0002 | Runtime Sandbox Model          | Accepted | Architecture              |
+| ADR-0003 | Learning Path Architecture     | Accepted | Product                   |
+| ADR-0004 | Mastery-Based Progress         | Accepted | Product                   |
+| ADR-0005 | Dedicated Backend Architecture | Accepted | System Architecture       |
+| ADR-0006 | Authentication Strategy        | Accepted | Security / Authentication |
 
 ---
 
@@ -140,6 +141,14 @@ Prisma ORM
 PostgreSQL
 
 This separation allows multiple clients (web, mobile, desktop) to share the same backend.
+
+---
+
+## ADR-0006
+
+Programming Mastery uses Better Auth for authentication while maintaining a separate application User model for business data.
+
+Authentication remains independent from the business domain, making the system easier to evolve and migrate in the future.
 
 ---
 
