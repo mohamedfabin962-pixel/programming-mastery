@@ -1,94 +1,427 @@
 # Technical Architecture Blueprint
 
-This document specifies the software architecture, data flow pipelines, sandboxing rules, and security model of **Programming Mastery**. It serves as the primary system design blueprint for engineers implementing platform features.
+This document defines the high-level technical architecture of **Programming Mastery**.
+
+It describes how the system is organized, how data flows through the application, and the architectural principles that guide implementation.
+
+This document intentionally focuses on the MVP architecture while remaining extensible for future versions.
 
 ---
 
-## 1. Architectural Patterns (Clean Architecture)
+# 1. Architecture Overview
 
-To maintain long-term scalability and decouple business rules from client interfaces or database engines, we follow the principles of Clean Architecture.
+Programming Mastery follows a layered architecture based on the principles of Clean Architecture.
+
+The goal is to keep business logic independent from frameworks, databases, and user interfaces.
 
 ```
-       ┌─────────────────────────────────────────────────────────┐
-       │                      INFRASTRUCTURE                     │
-       │    (Database Engines, Express HTTP Router, API Clients) │
-       │        ┌───────────────────────────────────────┐        │
-       │        │              APPLICATION              │        │
-       │        │  (Spaced Repetition Scheduler, Auth)  │        │
-       │        │        ┌─────────────────────┐        │        │
-       │        │        │     DOMAIN CORE     │        │        │
-       │        │        │  (User, Lesson,     │        │        │
-       │        │        │   Challenge Entities)        │        │
-       │        │        └─────────────────────┘        │        │
-       │        └───────────────────────────────────────┘        │
-       └─────────────────────────────────────────────────────────┘
+                    ┌──────────────────────────────┐
+                    │         Presentation         │
+                    │ Next.js (Frontend/UI)        │
+                    └──────────────┬───────────────┘
+                                   │
+                                   ▼
+                    ┌──────────────────────────────┐
+                    │       Express API Layer      │
+                    │ Routes • Controllers         │
+                    └──────────────┬───────────────┘
+                                   │
+                                   ▼
+                    ┌──────────────────────────────┐
+                    │      Application Layer       │
+                    │ Services • Use Cases         │
+                    └──────────────┬───────────────┘
+                                   │
+                                   ▼
+                    ┌──────────────────────────────┐
+                    │        Domain Layer          │
+                    │ Business Rules & Entities    │
+                    └──────────────┬───────────────┘
+                                   │
+                                   ▼
+                    ┌──────────────────────────────┐
+                    │     Infrastructure Layer     │
+                    │ Prisma • PostgreSQL          │
+                    └──────────────────────────────┘
 ```
-
-1.  **Domain Core Layer**: Contains pure business entities (e.g., `User`, `Lesson`, `Challenge`, `StreakRecord`) and domain-specific logic. It has zero external dependencies and does not know about any databases or UI frameworks.
-2.  **Application Layer (Use Cases)**: Contains core application logic (e.g., processing challenge submission, updating learning path state, calculating next active recall date using spaced repetition intervals).
-3.  **Infrastructure Layer**: Handles details like Express routing, database persistence (Mongoose/MongoDB schemas), third-party auth libraries, and physical execution runtimes.
-
-*Dependency Rule*: Dependencies must only point inward. The Domain Core layer cannot import anything from the application or infrastructure layers.
 
 ---
 
-## 2. Curriculum Data Synchronization Pipeline
+# 2. Technology Stack
 
-The course curriculum is version-controlled in the repository as structured content files (Markdown, JSON). To deliver this content efficiently, we design a synchronization pipeline:
+## Frontend
 
-```
-[Git Repo: /packages/content] ──► [CI Build Step] ──► [JSON Validation Check]
-                                                            │
-[API Cache Layer] ◄── [Database Seed/Upsert Engine] ◄───────┘
-       │
-[Next.js Client] (via API Endpoint)
-```
-
-1.  **Validation**: A validation schema (e.g., using schema validators like Zod/Joi) checks the format of all curriculum metadata, quiz questions, and starting code template suites.
-2.  **Seeding Engine**: When code changes are merged to the main branch, a seeding script parses the content files and upserts the data records into the database.
-3.  **Caching**: The API server caches curriculum models in-memory to prevent repeated database query overhead, serving content via a CDN-friendly caching layer.
+- Next.js 16 (App Router)
+- React
+- TypeScript
+- Tailwind CSS v4
+- shadcn/ui
+- React Hook Form
+- Zod
 
 ---
 
-## 3. Challenge Code Execution & Sandbox Strategy
+## Backend
 
-A critical system boundary is the compilation and execution of user-submitted code in Challenge Mode. The architecture requires a safe sandbox.
-
-### Execution Boundaries
-To balance execution speed, security, and hosting costs, code execution routing is split based on execution requirements:
-
-```
-                                  [User Code Submit]
-                                           │
-                ┌──────────────────────────┴──────────────────────────┐
-                ▼                                                     ▼
-     [Frontend / JS Lesson]                                [Backend Node/DB Lesson]
-                │                                                     │
-    Routable to Client Sandbox                              Routable to Secure Remote
-    (iframe / Web Worker Engine)                            (Isolated Docker Container)
-```
-
-1.  **Client-Side Sandbox (In-Browser Execution)**:
-    *   *Lessons*: Frontend Javascript, DOM manipulation, simple functions.
-    *   *Mechanism*: Code is loaded into a sandboxed, cross-origin `iframe` or executed inside a dedicated browser Web Worker with strict Content Security Policies (CSP).
-    *   *Verification*: Tests run inside the iframe context and return structured results via `postMessage` back to the parent page.
-    *   *Security Benefit*: Zero backend cost, instantaneous test response times.
-2.  **Server-Side Isolated Runner (Remote Containerized Execution)**:
-    *   *Lessons*: Node.js network routers, filesystem manipulations, database queries.
-    *   *Mechanism*: Code payload is sent to a secure queue, instantiated inside an isolated micro-container (e.g. AWS Lambda, gVisor, or a locked-down Docker daemon).
-    *   *Verification*: Tests run internally in the container, and results are returned via JSON API.
-    *   *Security Benefit*: The user code is executing in a fully isolated, network-restricted container with a strict memory and execution time limit (e.g., 2000ms max execution time).
+- Express.js
+- TypeScript
+- Better Auth
+- Prisma ORM
 
 ---
 
-## 4. Platform Security Architecture
+## Database
 
-The platform security model ensures high data integrity:
+- PostgreSQL
 
-*   **Authentication Flow**: User credentials verify against secure hash systems (e.g., bcrypt hashes). Active sessions are managed using HTTP-Only, Secure, SameSite cookies to protect credentials from Cross-Site Scripting (XSS) extraction.
-*   **Authorization Rules (RBAC)**: Route access is checked by authorization middleware matching standard role configurations:
-    *   `Student`: Access to personal learning stats, profile management, and challenge verification.
-    *   `ContentCreator`: Access to course preview tools and content builders.
-    *   `Administrator`: Access to system statistics, database tooling, and user permission panels.
-*   **Validation Boundaries**: All client input must pass schema validation checks before processing. Database schemas must enforce field limitations to prevent database injection attacks.
-*   **Rate Limiting**: API routes must reject excessive requests (e.g. limit submission endpoint to 10 attempts per minute per IP) to prevent server exhaustion.
+---
+
+## Development
+
+- Turborepo
+- pnpm
+- ESLint
+- Prettier
+- GitHub
+
+---
+
+# 3. Architectural Layers
+
+## Presentation Layer
+
+Responsible for:
+
+- User Interface
+- Routing
+- Layouts
+- Forms
+- Client-side interactions
+- Server Components
+- API communication
+
+Business logic should never exist here.
+
+---
+
+## API Layer
+
+Implemented using Express.
+
+Responsible for:
+
+- Route definitions
+- Authentication middleware
+- Authorization
+- Request validation
+- Response formatting
+
+Controllers should remain thin and delegate work to services.
+
+---
+
+## Application Layer
+
+Contains application-specific business logic.
+
+Examples:
+
+- User registration
+- Lesson progression
+- Progress calculation
+- Revision scheduling
+- Challenge evaluation
+
+This layer coordinates business operations.
+
+---
+
+## Domain Layer
+
+The heart of the application.
+
+Contains:
+
+- Domain entities
+- Business rules
+- Domain models
+- Value objects
+
+The domain layer should have no dependency on Express, Prisma, PostgreSQL, or Next.js.
+
+---
+
+## Infrastructure Layer
+
+Responsible for:
+
+- Database access
+- Prisma Client
+- External services
+- File storage
+- Email providers
+- Logging
+
+Infrastructure implements the interfaces required by the application layer.
+
+---
+
+# 4. Request Lifecycle
+
+A typical request follows this flow:
+
+```
+User
+
+↓
+
+Next.js
+
+↓
+
+Express Route
+
+↓
+
+Controller
+
+↓
+
+Application Service
+
+↓
+
+Repository
+
+↓
+
+Prisma
+
+↓
+
+PostgreSQL
+
+↓
+
+Response
+```
+
+Each layer has a single responsibility.
+
+---
+
+# 5. Folder Responsibilities
+
+Each folder should have one clear responsibility.
+
+## components/
+
+Reusable UI components.
+
+Examples:
+
+- Buttons
+- Cards
+- Dialogs
+- Navigation
+- Layouts
+
+---
+
+## features/
+
+Feature-specific UI and logic.
+
+Examples:
+
+- Authentication
+- Dashboard
+- Learning Paths
+- Lessons
+
+---
+
+## lib/
+
+Shared utilities.
+
+Examples:
+
+- Helpers
+- Constants
+- Utility functions
+
+---
+
+## config/
+
+Application configuration.
+
+Examples:
+
+- Environment variables
+- Navigation
+- Theme configuration
+
+---
+
+## services/
+
+Business logic.
+
+No UI code should exist here.
+
+---
+
+## hooks/
+
+Reusable React hooks.
+
+---
+
+## types/
+
+Shared TypeScript types.
+
+---
+
+# 6. Data Flow
+
+```
+Frontend
+
+↓
+
+Express API
+
+↓
+
+Application Service
+
+↓
+
+Repository
+
+↓
+
+Prisma
+
+↓
+
+PostgreSQL
+```
+
+Responses follow the same path back to the client.
+
+---
+
+# 7. Authentication Architecture
+
+Authentication is handled by Better Auth.
+
+Responsibilities include:
+
+- User registration
+- Login
+- Logout
+- Session management
+- Protected routes
+- Role-based authorization
+
+Only authenticated users may access protected resources.
+
+---
+
+# 8. Security Principles
+
+## Authentication
+
+- Session-based authentication
+- HTTP-Only cookies
+- Secure cookies in production
+- SameSite protection
+
+---
+
+## Authorization
+
+Role-based access control (RBAC).
+
+MVP Roles:
+
+- Student
+- Admin
+
+---
+
+## Validation
+
+All external input must be validated before processing.
+
+Validation occurs:
+
+- Client-side
+- API layer
+- Database layer
+
+Never trust client input.
+
+---
+
+## Rate Limiting
+
+Authentication and sensitive endpoints should be rate limited to reduce abuse.
+
+---
+
+# 9. Design Principles
+
+The architecture follows these principles:
+
+- Separation of concerns
+- Single Responsibility Principle
+- Reusable components
+- Strong typing
+- Feature-first organization
+- Clean Architecture
+- Scalable module boundaries
+- Explicit dependencies
+- Testable business logic
+
+---
+
+# 10. Future Architecture
+
+The following systems are intentionally outside the MVP.
+
+They will be designed when the platform reaches later development phases.
+
+Future systems include:
+
+- Remote code execution sandbox
+- Docker-based challenge runners
+- Distributed execution workers
+- AI-assisted code evaluation
+- Curriculum synchronization pipeline
+- Advanced caching infrastructure
+- Event-driven background jobs
+- Analytics pipeline
+- Recommendation engine
+
+These systems are intentionally deferred until the core learning platform is complete.
+
+---
+
+# 11. Architectural Goals
+
+Programming Mastery should be:
+
+- Maintainable
+- Scalable
+- Secure
+- Modular
+- Testable
+- Easy to extend
+- Easy to understand
+
+Every architectural decision should support long-term maintainability rather than short-term convenience.

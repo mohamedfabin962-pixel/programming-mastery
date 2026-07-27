@@ -1,34 +1,189 @@
-# Architectural Decisions Records (ADR) Registry
+# Architecture Decision Records (ADR)
 
-This document serves as the central index of significant architectural and design choices made during the lifecycle of the **Programming Mastery** project. By tracking decisions here, we establish context and trace the evolution of the codebase architecture.
+This document serves as the central index of important architectural and engineering decisions made throughout the development of **Programming Mastery**.
 
----
+Each decision is documented separately inside the `docs/3_architecture/decisions/` directory.
 
-## 1. How to Read an ADR
-
-Every Architecture Decision Record (ADR) is written using a standard format:
-
-*   **Status**: Indicates whether the decision is `Proposed`, `Accepted`, `Superceded`, or `Rejected`.
-*   **Context**: The problem we are trying to solve, background requirements, and constraints.
-*   **Alternatives Considered**: A list of alternative solutions, along with their pros and cons.
-*   **Decision**: The selected path, and why it was selected over the alternatives.
-*   **Consequences**: The trade-offs, limitations, and subsequent changes resulting from the choice.
+The purpose of this registry is to explain **why** a decision was made, not only **what** was implemented.
 
 ---
 
-## 2. Decision Registry
+# ADR Status
 
-| ID | Title | Date | Status | Target Area |
-| :--- | :--- | :--- | :--- | :--- |
-| **0001** | [Repository Monorepo Boundaries](file:///c:/Users/hp/fabi-learning/programming-mastery/docs/3_architecture/decisions/0001-repository-structure.md) | 2026-07-25 | `Accepted` | Git Repo Structure |
-| **0002** | [Challenge Execution Sandbox Model](file:///c:/Users/hp/fabi-learning/programming-mastery/docs/3_architecture/decisions/0002-runtime-sandbox-model.md) | 2026-07-25 | `Accepted` | Code Execution Sandbox |
+Each Architecture Decision Record should have one of the following statuses.
+
+| Status     | Meaning                    |
+| ---------- | -------------------------- |
+| Proposed   | Under discussion           |
+| Accepted   | Approved and adopted       |
+| Superseded | Replaced by another ADR    |
+| Rejected   | Considered but not adopted |
 
 ---
 
-## 3. Creating a New ADR
+# ADR Template
 
-To propose a new architectural decision:
-1. Copy the standard ADR markdown structure.
-2. File it under `/docs/3_architecture/decisions/` using a sequential numbering prefix (e.g. `0003-state-management.md`).
-3. Add the record entry to the table above.
-4. Submit the ADR for peer review as part of the pull request flow.
+Every ADR should follow this structure.
+
+```md
+# ADR-XXXX
+
+## Status
+
+Accepted
+
+---
+
+## Context
+
+Why does this problem exist?
+
+What constraints exist?
+
+---
+
+## Alternatives Considered
+
+Option A
+
+Option B
+
+Option C
+
+---
+
+## Decision
+
+What was chosen?
+
+Why?
+
+---
+
+## Consequences
+
+Benefits
+
+Trade-offs
+
+Future considerations
+```
+
+---
+
+# Decision Registry
+
+| ADR      | Title                          | Status   | Area                |
+| -------- | ------------------------------ | -------- | ------------------- |
+| ADR-0001 | Repository Structure           | Accepted | Architecture        |
+| ADR-0002 | Runtime Sandbox Model          | Accepted | Architecture        |
+| ADR-0003 | Learning Path Architecture     | Accepted | Product             |
+| ADR-0004 | Mastery-Based Progress         | Accepted | Product             |
+| ADR-0005 | Dedicated Backend Architecture | Accepted | System Architecture |
+
+---
+
+# Current Accepted Decisions
+
+## ADR-0001
+
+Repository follows a Turborepo monorepo architecture.
+
+---
+
+## ADR-0002
+
+Challenge execution will eventually use isolated sandbox environments.
+
+This architecture is outside the MVP.
+
+---
+
+## ADR-0003
+
+Learning Paths organize Technologies.
+
+A Technology may belong to multiple Learning Paths.
+
+Content should never be duplicated.
+
+---
+
+## ADR-0004
+
+Learner progress is measured by mastery rather than lesson completion.
+
+Completion percentages alone do not accurately represent understanding.
+
+---
+
+## ADR-0005
+
+Programming Mastery uses a dedicated backend.
+
+Frontend
+
+↓
+
+Next.js
+
+↓
+
+Express API
+
+↓
+
+Prisma ORM
+
+↓
+
+PostgreSQL
+
+This separation allows multiple clients (web, mobile, desktop) to share the same backend.
+
+---
+
+# Creating a New ADR
+
+When introducing an important architectural or product decision:
+
+1. Create a new markdown file inside:
+
+```
+docs/3_architecture/decisions/
+```
+
+2. Use the next available ADR number.
+
+Example:
+
+```
+ADR-0006-authentication-strategy.md
+```
+
+3. Follow the ADR template.
+
+4. Add the new ADR to the registry above.
+
+5. Reference it in the Pull Request if the decision changes existing architecture.
+
+---
+
+# What Deserves an ADR?
+
+Create an ADR when a decision significantly affects the project.
+
+Examples include:
+
+- Architecture changes
+- Authentication strategy
+- Database technology
+- State management
+- API design
+- Deployment architecture
+- Product architecture
+- Learning model
+- Progress model
+- Security model
+
+Avoid creating ADRs for minor implementation details.
