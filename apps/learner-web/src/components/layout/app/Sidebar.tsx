@@ -1,27 +1,13 @@
-import Link from 'next/link';
+import { NavLinks } from '@/components/layout/app/NavLinks';
 
-const navigation = [
-  { name: 'Dashboard', href: '#' },
-  { name: 'Roadmaps', href: '#' },
-  { name: 'Challenges', href: '#' },
-  { name: 'Projects', href: '#' },
-  { name: 'Progress', href: '#' },
-  { name: 'Settings', href: '#' },
-];
-
-export default function Sidebar() {
+export function Sidebar() {
   return (
-    <aside className="w-64 border-r bg-background">
-      <nav className="flex flex-col gap-2 p-4">
-        {navigation.map((item) => (
-          <Link
-            key={item.name}
-            href={item.href}
-            className="rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-muted"
-          >
-            {item.name}
-          </Link>
-        ))}
+    <aside
+      data-collapsible
+      className="hidden w-64 shrink-0 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground transition-[width] duration-200 md:flex"
+    >
+      <nav aria-label="Main navigation" className="flex flex-1 flex-col p-4">
+        <NavLinks />
       </nav>
     </aside>
   );
