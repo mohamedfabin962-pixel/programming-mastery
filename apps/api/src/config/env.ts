@@ -7,6 +7,7 @@ export interface Config {
   PORT: number;
   NODE_ENV: 'development' | 'production' | 'test';
   CORS_ORIGIN: string;
+  DATABASE_URL: string;
 }
 
 function validateEnv(): Config {
@@ -26,10 +27,22 @@ function validateEnv(): Config {
 
   const corsOrigin = process.env['CORS_ORIGIN'] || '*';
 
+  const databaseUrl = process.env['DATABASE_URL'];
+  if (!databaseUrl) {
+    if (nodeEnv === 'production') {
+      throw new Error('DATABASE_URL environment variable is required in production.');
+    } else {
+      console.warn(
+        '⚠️  [Config] DATABASE_URL environment variable is missing. Database operations will fail.',
+      );
+    }
+  }
+
   return {
     PORT: port,
     NODE_ENV: nodeEnv,
     CORS_ORIGIN: corsOrigin,
+    DATABASE_URL: databaseUrl || '',
   };
 }
 
