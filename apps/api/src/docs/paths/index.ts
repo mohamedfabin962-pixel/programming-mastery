@@ -1,5 +1,6 @@
 import { coursePaths } from './course.js';
 import { lessonPaths } from './lesson.js';
+import { progressPaths } from './progress.js';
 
 /**
  * OpenAPI path fragments from different route modules.
@@ -8,4 +9,5 @@ import { lessonPaths } from './lesson.js';
 export const paths = {
   ...coursePaths,
   ...lessonPaths,
+  ...progressPaths,
 };

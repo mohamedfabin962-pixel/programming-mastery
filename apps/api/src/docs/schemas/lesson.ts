@@ -28,4 +28,40 @@ export const lessonSchemas = {
       'updatedAt',
     ],
   },
+  CreateLessonInput: {
+    type: 'object',
+    properties: {
+      slug: { type: 'string', example: 'getting-started-with-ts' },
+      title: { type: 'string', example: 'Getting Started with TS' },
+      description: { type: 'string', example: 'Setup environment and compile your first script.' },
+      content: { type: 'string', example: 'Lesson body text inside Markdown format...' },
+      order: { type: 'integer', example: 1 },
+      durationMinutes: { type: 'integer', example: 15 },
+      thumbnail: {
+        type: 'string',
+        format: 'uri',
+        example: 'https://example.com/thumb.png',
+        nullable: true,
+      },
+    },
+    required: ['slug', 'title', 'description', 'content', 'order', 'durationMinutes'],
+    additionalProperties: false,
+  },
+  UpdateLessonInput: {
+    type: 'object',
+    properties: {
+      title: { type: 'string', example: 'Getting Started with TS' },
+      description: { type: 'string', example: 'Setup environment and compile your first script.' },
+      content: { type: 'string', example: 'Lesson body text inside Markdown format...' },
+      order: { type: 'integer', example: 1 },
+      durationMinutes: { type: 'integer', example: 15 },
+      thumbnail: {
+        type: 'string',
+        format: 'uri',
+        example: 'https://example.com/thumb.png',
+        nullable: true,
+      },
+    },
+    additionalProperties: false,
+  },
 };

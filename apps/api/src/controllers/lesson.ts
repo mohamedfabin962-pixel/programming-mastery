@@ -26,3 +26,42 @@ export async function getLesson(req: Request, res: Response, next: NextFunction)
     next(error);
   }
 }
+
+/**
+ * Controller to create a new lesson for a course.
+ */
+export async function createLesson(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const { courseSlug } = req.params;
+    const lesson = await lessonService.createLesson(courseSlug as string, req.body);
+    res.status(201).json({ success: true, data: lesson });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/**
+ * Controller to update properties of an existing lesson by its ID.
+ */
+export async function updateLesson(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const { id } = req.params;
+    const lesson = await lessonService.updateLesson(id as string, req.body);
+    res.status(200).json({ success: true, data: lesson });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/**
+ * Controller to delete a lesson by its ID.
+ */
+export async function deleteLesson(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const { id } = req.params;
+    const lesson = await lessonService.deleteLesson(id as string);
+    res.status(200).json({ success: true, data: lesson });
+  } catch (error) {
+    next(error);
+  }
+}
