@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { env } from '../config/env.js';
+import { requireAuth } from '../middlewares/auth.js';
 
 const router: Router = Router();
 
@@ -50,6 +51,35 @@ router.get('/version', (_req, res) => {
     success: true,
     version: apiVersion,
     env: env.NODE_ENV,
+  });
+});
+
+/**
+ * GET /api/me
+ * Retrieves current authenticated user profile and session metadata.
+ * Ensures that no sensitive credentials (e.g. passwords/tokens) are exposed.
+ */
+router.get('/api/me', requireAuth, (req, res) => {
+  res.status(200).json({
+    user: {
+      id: req.user?.id,
+      name: req.user?.name,
+      email: req.user?.email,
+      emailVerified: req.user?.emailVerified,
+      image: req.user?.image,
+      createdAt: req.user?.createdAt,
+      updatedAt: req.user?.updatedAt,
+    },
+    session: {
+      id: req.session?.id,
+      expiresAt: req.session?.expiresAt,
+      token: req.session?.token,
+      createdAt: req.session?.createdAt,
+      updatedAt: req.session?.updatedAt,
+      ipAddress: req.session?.ipAddress,
+      userAgent: req.session?.userAgent,
+      userId: req.session?.userId,
+    },
   });
 });
 
