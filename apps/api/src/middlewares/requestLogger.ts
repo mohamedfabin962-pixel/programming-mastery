@@ -1,23 +1,33 @@
-import morgan from 'morgan';
-import type { Request, Response, RequestHandler } from 'express';
-import { env } from '../config/env.js';
+import type { Request, Response, NextFunction } from 'express';
+import { logger } from '../lib/logger.js';
 
 /**
- * Structured Request Logger Middleware.
- * Logs incoming HTTP requests. Outputs clean JSON logs in production, and readable colored logs in development.
+ * Pino-based Request Logging Middleware.
+ * Logs incoming HTTP requests and response metrics on request completion (finish event).
  */
-export const requestLogger: RequestHandler =
-  env.NODE_ENV === 'production'
-    ? morgan((tokens, req: Request, res: Response): string => {
-        return JSON.stringify({
-          timestamp: new Date().toISOString(),
-          method: tokens.method?.(req, res),
-          url: tokens.url?.(req, res),
-          status: Number(tokens.status?.(req, res)) || undefined,
-          contentLength: tokens.res?.(req, res, 'content-length'),
-          responseTimeMs: Number(tokens['response-time']?.(req, res)) || undefined,
-          ip: req.ip || req.socket.remoteAddress,
-          userAgent: tokens['user-agent']?.(req, res),
-        });
-      })
-    : morgan('dev');
+export function requestLogger(req: Request, res: Response, next: NextFunction): void {
+  const startTime = Date.now();
+
+  // Log incoming request
+  logger.info({
+    msg: 'Incoming request',
+    method: req.method,
+    url: req.originalUrl || req.url,
+    requestId: req.id,
+  });
+
+  // Log completed request metrics when the connection completes
+  res.on('finish', () => {
+    const responseTime = Date.now() - startTime;
+    logger.info({
+      msg: 'Request processed',
+      method: req.method,
+      url: req.originalUrl || req.url,
+      statusCode: res.statusCode,
+      responseTimeMs: responseTime,
+      requestId: req.id,
+    });
+  });
+
+  next();
+}

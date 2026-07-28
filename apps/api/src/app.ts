@@ -4,12 +4,17 @@ import helmet from 'helmet';
 import { toNodeHandler } from 'better-auth/node';
 import { env } from './config/env.js';
 import { auth } from './lib/auth.js';
+import { requestId } from './middlewares/requestId.js';
 import { requestLogger } from './middlewares/requestLogger.js';
 import { errorHandler } from './middlewares/errorHandler.js';
 import baseRouter from './routes/index.js';
 import { NotFoundError } from './utils/errors.js';
 
 const app: Express = express();
+
+// Assign request ID and log incoming requests early in the pipeline
+app.use(requestId);
+app.use(requestLogger);
 
 // Security and utility middleware
 app.use(helmet());
@@ -25,9 +30,6 @@ app.all('/api/auth/{*any}', toNodeHandler(auth));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// Structured request logging middleware
-app.use(requestLogger);
 
 // Base application routes (includes /health and /version)
 app.use('/', baseRouter);

@@ -1,17 +1,13 @@
 import type { Request, Response, NextFunction } from 'express';
 import { AppError } from '../utils/errors.js';
 import { env } from '../config/env.js';
+import { logger } from '../lib/logger.js';
 
 /**
  * Express error-handling middleware.
  * Formats errors consistently and prevents leaking sensitive information in production.
  */
-export function errorHandler(
-  err: unknown,
-  _req: Request,
-  res: Response,
-  _next: NextFunction,
-): void {
+export function errorHandler(err: unknown, req: Request, res: Response, _next: NextFunction): void {
   // If headers have already been sent, delegate to default Express handler
   if (res.headersSent) {
     return;
@@ -47,11 +43,20 @@ export function errorHandler(
     }
   }
 
-  // Log server errors (500) or unexpected failures
+  // Log errors using centralized pino logger
   if (statusCode >= 500) {
-    console.error(`[Error Handler] Unexpected error:`, err);
+    logger.error({
+      msg: 'Unexpected server error',
+      error: err instanceof Error ? { message: err.message, stack: err.stack } : err,
+      requestId: req.id,
+      statusCode,
+      errorCode,
+    });
   } else {
-    console.warn(`[Error Handler] Client error (${statusCode}): ${message}`, {
+    logger.warn({
+      msg: `Client error: ${message}`,
+      requestId: req.id,
+      statusCode,
       errorCode,
       details,
     });
