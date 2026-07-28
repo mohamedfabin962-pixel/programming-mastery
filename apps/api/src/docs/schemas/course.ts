@@ -34,4 +34,46 @@ export const courseSchemas = {
       'updatedAt',
     ],
   },
+  CreateCourseInput: {
+    type: 'object',
+    properties: {
+      slug: { type: 'string', example: 'intro-to-typescript' },
+      title: { type: 'string', example: 'Introduction to TypeScript' },
+      description: { type: 'string', example: 'Learn the fundamentals of TypeScript development.' },
+      thumbnail: {
+        type: 'string',
+        format: 'uri',
+        example: 'https://example.com/ts-thumb.png',
+        nullable: true,
+      },
+      difficulty: {
+        type: 'string',
+        enum: ['BEGINNER', 'INTERMEDIATE', 'ADVANCED'],
+        example: 'BEGINNER',
+      },
+      languageCode: { type: 'string', example: 'en' },
+    },
+    required: ['slug', 'title', 'description', 'difficulty', 'languageCode'],
+    additionalProperties: false,
+  },
+  UpdateCourseInput: {
+    type: 'object',
+    properties: {
+      title: { type: 'string', example: 'Introduction to TypeScript' },
+      description: { type: 'string', example: 'Learn the fundamentals of TypeScript development.' },
+      thumbnail: {
+        type: 'string',
+        format: 'uri',
+        example: 'https://example.com/ts-thumb.png',
+        nullable: true,
+      },
+      difficulty: {
+        type: 'string',
+        enum: ['BEGINNER', 'INTERMEDIATE', 'ADVANCED'],
+        example: 'BEGINNER',
+      },
+      languageCode: { type: 'string', example: 'en' },
+    },
+    additionalProperties: false,
+  },
 };
