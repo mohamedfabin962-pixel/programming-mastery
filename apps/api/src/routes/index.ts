@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { env } from '../config/env.js';
 import { requireAuth } from '../middlewares/auth.js';
 import docsRouter from './docs.js';
+import courseRouter from './course.js';
 
 const router: Router = Router();
 
@@ -86,5 +87,8 @@ router.get('/api/me', requireAuth, (req, res) => {
 
 // Mount API documentation routes
 router.use('/docs', docsRouter);
+
+// Mount Course routes
+router.use('/api/courses', courseRouter);
 
 export default router;

@@ -65,3 +65,24 @@ model Verification {
 
   @@map("verification")
 }
+
+enum Difficulty {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+model Course {
+  id           String     @id @default(uuid())
+  slug         String     @unique
+  title        String
+  description  String
+  thumbnail    String?
+  difficulty   Difficulty
+  languageCode String
+  isPublished  Boolean    @default(false)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@map("course")
+}

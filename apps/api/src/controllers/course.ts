@@ -1,0 +1,31 @@
+import { Request, Response, NextFunction } from 'express';
+import * as courseService from '../services/course.js';
+
+/**
+ * Controller to retrieve all published courses.
+ */
+export async function getCourses(_req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const courses = await courseService.getCourses();
+    res.status(200).json({ success: true, data: courses });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/**
+ * Controller to retrieve a single published course by its slug.
+ */
+export async function getCourseBySlug(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const { slug } = req.params;
+    const course = await courseService.getCourseBySlug(slug as string);
+    res.status(200).json({ success: true, data: course });
+  } catch (error) {
+    next(error);
+  }
+}
