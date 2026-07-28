@@ -89,3 +89,12 @@ export class InternalServerError extends AppError {
     super(message, 500, errorCode, false, null);
   }
 }
+
+/**
+ * 429 Too Many Requests Error
+ */
+export class TooManyRequestsError extends AppError {
+  constructor(message: string = 'Too many requests', errorCode: string = 'RATE_LIMIT_EXCEEDED') {
+    super(message, 429, errorCode, true, null);
+  }
+}

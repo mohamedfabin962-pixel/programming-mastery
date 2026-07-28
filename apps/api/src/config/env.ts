@@ -10,6 +10,20 @@ export interface Config {
   DATABASE_URL: string;
   BETTER_AUTH_SECRET: string;
   BETTER_AUTH_URL: string;
+  RATE_LIMIT_WINDOW_MS: number;
+  RATE_LIMIT_MAX_REQUESTS: number;
+  AUTH_RATE_LIMIT_WINDOW_MS: number;
+  AUTH_RATE_LIMIT_MAX_REQUESTS: number;
+}
+
+/**
+ * Safely parses integer values from environment variables with defaults.
+ */
+function parseEnvInt(key: string, defaultValue: number): number {
+  const val = process.env[key];
+  if (!val) return defaultValue;
+  const parsed = parseInt(val, 10);
+  return isNaN(parsed) || parsed <= 0 ? defaultValue : parsed;
 }
 
 function validateEnv(): Config {
@@ -51,6 +65,14 @@ function validateEnv(): Config {
 
   const betterAuthUrl = process.env['BETTER_AUTH_URL'] || `http://localhost:${port}/api/auth`;
 
+  // Standard global limits: 15 mins window, max 100 requests
+  const rateLimitWindowMs = parseEnvInt('RATE_LIMIT_WINDOW_MS', 15 * 60 * 1000);
+  const rateLimitMaxRequests = parseEnvInt('RATE_LIMIT_MAX_REQUESTS', 100);
+
+  // Authentication limits: 15 mins window, max 5 requests
+  const authRateLimitWindowMs = parseEnvInt('AUTH_RATE_LIMIT_WINDOW_MS', 15 * 60 * 1000);
+  const authRateLimitMaxRequests = parseEnvInt('AUTH_RATE_LIMIT_MAX_REQUESTS', 5);
+
   return {
     PORT: port,
     NODE_ENV: nodeEnv,
@@ -58,6 +80,10 @@ function validateEnv(): Config {
     DATABASE_URL: databaseUrl || '',
     BETTER_AUTH_SECRET: betterAuthSecret || '',
     BETTER_AUTH_URL: betterAuthUrl,
+    RATE_LIMIT_WINDOW_MS: rateLimitWindowMs,
+    RATE_LIMIT_MAX_REQUESTS: rateLimitMaxRequests,
+    AUTH_RATE_LIMIT_WINDOW_MS: authRateLimitWindowMs,
+    AUTH_RATE_LIMIT_MAX_REQUESTS: authRateLimitMaxRequests,
   };
 }
 

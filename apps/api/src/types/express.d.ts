@@ -6,6 +6,12 @@ declare global {
       user?: User;
       session?: Session;
       id?: string;
+      rateLimit?: {
+        limit: number;
+        current: number;
+        remaining: number;
+        resetTime?: Date;
+      };
     }
   }
 }

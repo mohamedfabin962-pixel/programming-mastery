@@ -6,15 +6,17 @@ import { env } from './config/env.js';
 import { auth } from './lib/auth.js';
 import { requestId } from './middlewares/requestId.js';
 import { requestLogger } from './middlewares/requestLogger.js';
+import { globalLimiter, authLimiter } from './middlewares/rateLimiter.js';
 import { errorHandler } from './middlewares/errorHandler.js';
 import baseRouter from './routes/index.js';
 import { NotFoundError } from './utils/errors.js';
 
 const app: Express = express();
 
-// Assign request ID and log incoming requests early in the pipeline
+// Assign request ID, log requests, and apply global rate limits early in the pipeline
 app.use(requestId);
 app.use(requestLogger);
+app.use(globalLimiter);
 
 // Security and utility middleware
 app.use(helmet());
@@ -26,7 +28,7 @@ app.use(
 );
 
 // Better Auth route handler must be mounted before body parsing middleware
-app.all('/api/auth/{*any}', toNodeHandler(auth));
+app.all('/api/auth/{*any}', authLimiter, toNodeHandler(auth));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
