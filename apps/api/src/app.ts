@@ -1,7 +1,9 @@
 import express, { Express } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import { toNodeHandler } from 'better-auth/node';
 import { env } from './config/env.js';
+import { auth } from './lib/auth.js';
 import { requestLogger } from './middlewares/requestLogger.js';
 import { errorHandler } from './middlewares/errorHandler.js';
 import baseRouter from './routes/index.js';
@@ -17,6 +19,10 @@ app.use(
     credentials: true,
   }),
 );
+
+// Better Auth route handler must be mounted before body parsing middleware
+app.all('/api/auth/{*any}', toNodeHandler(auth));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

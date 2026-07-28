@@ -8,6 +8,8 @@ export interface Config {
   NODE_ENV: 'development' | 'production' | 'test';
   CORS_ORIGIN: string;
   DATABASE_URL: string;
+  BETTER_AUTH_SECRET: string;
+  BETTER_AUTH_URL: string;
 }
 
 function validateEnv(): Config {
@@ -38,11 +40,24 @@ function validateEnv(): Config {
     }
   }
 
+  const betterAuthSecret = process.env['BETTER_AUTH_SECRET'];
+  if (!betterAuthSecret) {
+    if (nodeEnv === 'production') {
+      throw new Error('BETTER_AUTH_SECRET environment variable is required in production.');
+    } else {
+      console.warn('⚠️  [Config] BETTER_AUTH_SECRET is missing. Better Auth operations will fail.');
+    }
+  }
+
+  const betterAuthUrl = process.env['BETTER_AUTH_URL'] || `http://localhost:${port}/api/auth`;
+
   return {
     PORT: port,
     NODE_ENV: nodeEnv,
     CORS_ORIGIN: corsOrigin,
     DATABASE_URL: databaseUrl || '',
+    BETTER_AUTH_SECRET: betterAuthSecret || '',
+    BETTER_AUTH_URL: betterAuthUrl,
   };
 }
 
