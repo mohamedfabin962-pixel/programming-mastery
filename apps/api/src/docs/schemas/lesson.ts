@@ -1,0 +1,31 @@
+export const lessonSchemas = {
+  Lesson: {
+    type: 'object',
+    properties: {
+      id: { type: 'string', format: 'uuid', example: '1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d' },
+      courseId: { type: 'string', format: 'uuid', example: '5e6f7a8b-9c0d-1e2f-3a4b-5c6d7e8f9a0b' },
+      slug: { type: 'string', example: 'getting-started-with-ts' },
+      title: { type: 'string', example: 'Getting Started with TS' },
+      description: { type: 'string', example: 'Setup environment and compile your first script.' },
+      content: { type: 'string', example: 'Lesson body text inside Markdown format...' },
+      order: { type: 'integer', example: 1 },
+      durationMinutes: { type: 'integer', example: 15 },
+      isPublished: { type: 'boolean', example: true },
+      createdAt: { type: 'string', format: 'date-time', example: '2026-07-28T12:00:00.000Z' },
+      updatedAt: { type: 'string', format: 'date-time', example: '2026-07-28T12:00:00.000Z' },
+    },
+    required: [
+      'id',
+      'courseId',
+      'slug',
+      'title',
+      'description',
+      'content',
+      'order',
+      'durationMinutes',
+      'isPublished',
+      'createdAt',
+      'updatedAt',
+    ],
+  },
+};

@@ -83,6 +83,26 @@ model Course {
   isPublished  Boolean    @default(false)
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
+  lessons      Lesson[]
 
   @@map("course")
+}
+
+model Lesson {
+  id              String   @id @default(uuid())
+  courseId        String
+  course          Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  slug            String
+  title           String
+  description     String
+  content         String
+  order           Int
+  durationMinutes Int
+  isPublished     Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([courseId, slug])
+  @@unique([courseId, order])
+  @@map("lesson")
 }

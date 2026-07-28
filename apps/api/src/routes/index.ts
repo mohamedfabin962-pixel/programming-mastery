@@ -5,6 +5,7 @@ import { env } from '../config/env.js';
 import { requireAuth } from '../middlewares/auth.js';
 import docsRouter from './docs.js';
 import courseRouter from './course.js';
+import lessonRouter from './lesson.js';
 
 const router: Router = Router();
 
@@ -90,5 +91,6 @@ router.use('/docs', docsRouter);
 
 // Mount Course routes
 router.use('/api/courses', courseRouter);
+router.use('/api/courses', lessonRouter);
 
 export default router;

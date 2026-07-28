@@ -1,4 +1,5 @@
 import { courseSchemas } from './course.js';
+import { lessonSchemas } from './lesson.js';
 
 /**
  * OpenAPI schema components from different domain validations.
@@ -6,4 +7,5 @@ import { courseSchemas } from './course.js';
  */
 export const schemas = {
   ...courseSchemas,
+  ...lessonSchemas,
 };
