@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { env } from '../config/env.js';
 import { requireAuth } from '../middlewares/auth.js';
+import docsRouter from './docs.js';
 
 const router: Router = Router();
 
@@ -82,5 +83,8 @@ router.get('/api/me', requireAuth, (req, res) => {
     },
   });
 });
+
+// Mount API documentation routes
+router.use('/docs', docsRouter);
 
 export default router;
