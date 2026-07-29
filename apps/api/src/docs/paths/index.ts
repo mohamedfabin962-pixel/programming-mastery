@@ -6,6 +6,7 @@ import { questionPaths } from './question.js';
 import { choicePaths } from './choice.js';
 import { quizAttemptPaths } from './quizAttempt.js';
 import { enrollmentPaths } from './enrollment.js';
+import { dashboardPaths } from './dashboard.js';
 
 /**
  * OpenAPI path fragments from different route modules.
@@ -20,4 +21,5 @@ export const paths = {
   ...choicePaths,
   ...quizAttemptPaths,
   ...enrollmentPaths,
+  ...dashboardPaths,
 };

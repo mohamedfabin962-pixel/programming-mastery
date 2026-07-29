@@ -12,6 +12,7 @@ import questionRouter from './question.js';
 import choiceRouter from './choice.js';
 import quizAttemptRouter from './quizAttempt.js';
 import enrollmentRouter from './enrollment.js';
+import dashboardRouter from './dashboard.js';
 
 const router: Router = Router();
 
@@ -106,5 +107,6 @@ router.use('/api/questions', questionRouter);
 router.use('/api/choices', choiceRouter);
 router.use('/api/quiz-attempts', quizAttemptRouter);
 router.use('/api/enrollments', enrollmentRouter);
+router.use('/api/dashboard', dashboardRouter);
 
 export default router;
