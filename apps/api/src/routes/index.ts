@@ -7,6 +7,7 @@ import docsRouter from './docs.js';
 import courseRouter from './course.js';
 import { lessonRouter, lessonMgmtRouter } from './lesson.js';
 import progressRouter from './progress.js';
+import { lessonQuizRouter, quizRouter } from './quiz.js';
 
 const router: Router = Router();
 
@@ -95,5 +96,7 @@ router.use('/api/courses', courseRouter);
 router.use('/api/courses', lessonRouter);
 router.use('/api/lessons', lessonMgmtRouter);
 router.use('/api/lessons', progressRouter);
+router.use('/api/lessons', lessonQuizRouter);
+router.use('/api/quizzes', quizRouter);
 
 export default router;

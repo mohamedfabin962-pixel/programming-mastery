@@ -103,6 +103,7 @@ model Lesson {
   createdAt       DateTime   @default(now())
   updatedAt       DateTime   @updatedAt
   progress        Progress[]
+  quizzes         Quiz[]
 
   @@unique([courseId, slug])
   @@unique([courseId, order])
@@ -122,4 +123,49 @@ model Progress {
 
   @@unique([userId, lessonId])
   @@map("progress")
+}
+
+model Quiz {
+  id          String     @id @default(uuid())
+  lessonId    String
+  lesson      Lesson     @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  isPublished Boolean    @default(false)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  questions   Question[]
+
+  @@unique([lessonId, title])
+  @@map("quiz")
+}
+
+model Question {
+  id          String   @id @default(uuid())
+  quizId      String
+  quiz        Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  question    String
+  explanation String?
+  order       Int
+  points      Int      @default(1)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  choices     Choice[]
+
+  @@unique([quizId, order])
+  @@map("question")
+}
+
+model Choice {
+  id         String   @id @default(uuid())
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  text       String
+  isCorrect  Boolean
+  order      Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([questionId, order])
+  @@map("choice")
 }
