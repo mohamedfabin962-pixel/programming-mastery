@@ -135,4 +135,135 @@ export const reviewPaths = {
       },
     },
   },
+  '/api/reviews/{reviewId}': {
+    patch: {
+      tags: ['Reviews'],
+      summary: 'Update own review',
+      description:
+        "Updates the authenticated user's review for a course. At least one of rating or review must be provided. Requires authentication.",
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        {
+          name: 'reviewId',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+          description: 'UUID of the review to update',
+        },
+      ],
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: { $ref: '#/components/schemas/UpdateReviewInput' },
+          },
+        },
+      },
+      responses: {
+        200: {
+          description: 'Review updated successfully',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  success: { type: 'boolean', example: true },
+                  data: { $ref: '#/components/schemas/Review' },
+                },
+                required: ['success', 'data'],
+              },
+            },
+          },
+        },
+        400: {
+          description: 'Validation failed or empty payload',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/ValidationError' },
+            },
+          },
+        },
+        401: {
+          description: 'Unauthorized',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/UnauthorizedError' },
+            },
+          },
+        },
+        403: {
+          description: 'Forbidden — not the review owner',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/ForbiddenError' },
+            },
+          },
+        },
+        404: {
+          description: 'Review not found',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/NotFoundError' },
+            },
+          },
+        },
+      },
+    },
+    delete: {
+      tags: ['Reviews'],
+      summary: 'Delete own review',
+      description:
+        "Deletes the authenticated user's review for a course. Course rating aggregates are recalculated automatically. Requires authentication.",
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        {
+          name: 'reviewId',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+          description: 'UUID of the review to delete',
+        },
+      ],
+      responses: {
+        200: {
+          description: 'Review deleted successfully',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  success: { type: 'boolean', example: true },
+                },
+                required: ['success'],
+              },
+            },
+          },
+        },
+        401: {
+          description: 'Unauthorized',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/UnauthorizedError' },
+            },
+          },
+        },
+        403: {
+          description: 'Forbidden — not the review owner',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/ForbiddenError' },
+            },
+          },
+        },
+        404: {
+          description: 'Review not found',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/NotFoundError' },
+            },
+          },
+        },
+      },
+    },
+  },
 };

@@ -38,4 +38,13 @@ export const reviewSchemas = {
     required: ['courseSlug', 'rating'],
     additionalProperties: false,
   },
+  UpdateReviewInput: {
+    type: 'object',
+    properties: {
+      rating: { type: 'integer', minimum: 1, maximum: 5, example: 4 },
+      review: { type: 'string', maxLength: 2000, example: 'Updated thoughts.', nullable: true },
+    },
+    additionalProperties: false,
+    description: 'At least one of rating or review must be provided.',
+  },
 };

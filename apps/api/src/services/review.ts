@@ -1,5 +1,6 @@
+import { Prisma } from '@prisma/client';
 import { prisma } from '../lib/prisma.js';
-import { NotFoundError, ValidationError } from '../utils/errors.js';
+import { ForbiddenError, NotFoundError, ValidationError } from '../utils/errors.js';
 
 export const reviewSelect = {
   id: true,
@@ -11,10 +12,40 @@ export const reviewSelect = {
   updatedAt: true,
 };
 
+// ─── Private helper ───────────────────────────────────────────────────────────
+
+/**
+ * Aggregates all reviews for a course inside an active transaction,
+ * then updates Course.averageRating and Course.reviewCount atomically.
+ *
+ * When the last review is deleted _avg.rating is null; we reset both
+ * aggregates to 0 in that case.
+ */
+async function syncCourseRatingAggregates(
+  tx: Prisma.TransactionClient,
+  courseId: string,
+): Promise<void> {
+  const agg = await tx.review.aggregate({
+    where: { courseId },
+    _count: { id: true },
+    _avg: { rating: true },
+  });
+
+  const reviewCount = agg._count.id;
+  const averageRating = reviewCount === 0 ? 0 : Math.round((agg._avg.rating ?? 0) * 100) / 100;
+
+  await tx.course.update({
+    where: { id: courseId },
+    data: { averageRating, reviewCount },
+  });
+}
+
+// ─── Public service functions ─────────────────────────────────────────────────
+
 /**
  * Creates a review for a course.
  * Enforces enrollment, completion of at least one lesson, and review uniqueness.
- * Re-aggregates course average rating and review counts inside the transaction.
+ * Re-aggregates course rating and review count inside the transaction.
  */
 export async function createReview(
   courseSlug: string,
@@ -26,6 +57,7 @@ export async function createReview(
     // Resolve course by slug
     const course = await tx.course.findUnique({
       where: { slug: courseSlug },
+      select: { id: true },
     });
 
     if (!course) {
@@ -34,12 +66,8 @@ export async function createReview(
 
     // Verify user is enrolled
     const enrollment = await tx.enrollment.findUnique({
-      where: {
-        userId_courseId: {
-          userId,
-          courseId: course.id,
-        },
-      },
+      where: { userId_courseId: { userId, courseId: course.id } },
+      select: { id: true },
     });
 
     if (!enrollment) {
@@ -51,9 +79,7 @@ export async function createReview(
       where: {
         userId,
         completed: true,
-        lesson: {
-          courseId: course.id,
-        },
+        lesson: { courseId: course.id },
       },
     });
 
@@ -65,12 +91,8 @@ export async function createReview(
 
     // Verify course has not already been reviewed by this user
     const existingReview = await tx.review.findUnique({
-      where: {
-        userId_courseId: {
-          userId,
-          courseId: course.id,
-        },
-      },
+      where: { userId_courseId: { userId, courseId: course.id } },
+      select: { id: true },
     });
 
     if (existingReview) {
@@ -79,33 +101,12 @@ export async function createReview(
 
     // Create new review
     const review = await tx.review.create({
-      data: {
-        userId,
-        courseId: course.id,
-        rating,
-        review: reviewContent,
-      },
+      data: { userId, courseId: course.id, rating, review: reviewContent },
       select: reviewSelect,
     });
 
-    // Aggregate reviews for course
-    const agg = await tx.review.aggregate({
-      where: { courseId: course.id },
-      _count: { id: true },
-      _avg: { rating: true },
-    });
-
-    const reviewCount = agg._count.id;
-    const averageRating = Math.round((agg._avg.rating ?? 0) * 100) / 100;
-
-    // Update course aggregates
-    await tx.course.update({
-      where: { id: course.id },
-      data: {
-        averageRating,
-        reviewCount,
-      },
-    });
+    // Sync course aggregates
+    await syncCourseRatingAggregates(tx, course.id);
 
     return review;
   });
@@ -113,12 +114,12 @@ export async function createReview(
 
 /**
  * Retrieves all reviews for a course, sorted newest first.
- * Employs select to return stable and safe user profiles details.
+ * Exposes only safe user fields (id, name).
  */
 export async function getCourseReviews(courseSlug: string) {
-  // Resolve course by slug
   const course = await prisma.course.findUnique({
     where: { slug: courseSlug },
+    select: { id: true },
   });
 
   if (!course) {
@@ -133,11 +134,80 @@ export async function getCourseReviews(courseSlug: string) {
       review: true,
       createdAt: true,
       user: {
-        select: {
-          id: true,
-          name: true,
-        },
+        select: { id: true, name: true },
       },
     },
+  });
+}
+
+/**
+ * Updates an existing review.
+ * Verifies ownership, updates fields, and re-syncs course aggregates.
+ */
+export async function updateReview(
+  reviewId: string,
+  userId: string,
+  rating?: number,
+  reviewContent?: string | null,
+) {
+  return prisma.$transaction(async (tx) => {
+    // Resolve review — narrow select, no include
+    const existing = await tx.review.findUnique({
+      where: { id: reviewId },
+      select: { id: true, userId: true, courseId: true },
+    });
+
+    if (!existing) {
+      throw new NotFoundError(`Review with id "${reviewId}" not found`);
+    }
+
+    if (existing.userId !== userId) {
+      throw new ForbiddenError('You can only edit your own reviews.');
+    }
+
+    // Update review fields and return with shared reviewSelect
+    const updated = await tx.review.update({
+      where: { id: reviewId },
+      data: {
+        ...(rating !== undefined && { rating }),
+        ...(reviewContent !== undefined && { review: reviewContent }),
+      },
+      select: reviewSelect,
+    });
+
+    // Sync course aggregates
+    await syncCourseRatingAggregates(tx, existing.courseId);
+
+    return updated;
+  });
+}
+
+/**
+ * Deletes a review.
+ * Verifies ownership, removes the record, and re-syncs course aggregates.
+ * If the deleted review was the last one, course aggregates reset to 0.
+ */
+export async function deleteReview(reviewId: string, userId: string) {
+  return prisma.$transaction(async (tx) => {
+    // Resolve review — narrow select, no include
+    const existing = await tx.review.findUnique({
+      where: { id: reviewId },
+      select: { id: true, userId: true, courseId: true },
+    });
+
+    if (!existing) {
+      throw new NotFoundError(`Review with id "${reviewId}" not found`);
+    }
+
+    if (existing.userId !== userId) {
+      throw new ForbiddenError('You can only delete your own reviews.');
+    }
+
+    await tx.review.delete({ where: { id: reviewId } });
+
+    // Sync course aggregates (helper handles zero-reset when count drops to 0)
+    await syncCourseRatingAggregates(tx, existing.courseId);
+
+    return { success: true };
   });
 }

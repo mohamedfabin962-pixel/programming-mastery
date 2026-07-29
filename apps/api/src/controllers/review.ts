@@ -31,3 +31,32 @@ export async function getCourseReviews(
     next(error);
   }
 }
+
+/**
+ * Controller to update the authenticated user's own review.
+ */
+export async function updateReview(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const { reviewId } = req.params;
+    const { rating, review } = req.body;
+    const userId = req.user!.id;
+    const updated = await reviewService.updateReview(reviewId as string, userId, rating, review);
+    res.status(200).json({ success: true, data: updated });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/**
+ * Controller to delete the authenticated user's own review.
+ */
+export async function deleteReview(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const { reviewId } = req.params;
+    const userId = req.user!.id;
+    const result = await reviewService.deleteReview(reviewId as string, userId);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+}
