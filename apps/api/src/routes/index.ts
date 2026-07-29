@@ -10,6 +10,7 @@ import progressRouter from './progress.js';
 import { lessonQuizRouter, quizRouter } from './quiz.js';
 import questionRouter from './question.js';
 import choiceRouter from './choice.js';
+import quizAttemptRouter from './quizAttempt.js';
 
 const router: Router = Router();
 
@@ -102,5 +103,6 @@ router.use('/api/lessons', lessonQuizRouter);
 router.use('/api/quizzes', quizRouter);
 router.use('/api/questions', questionRouter);
 router.use('/api/choices', choiceRouter);
+router.use('/api/quiz-attempts', quizAttemptRouter);
 
 export default router;
