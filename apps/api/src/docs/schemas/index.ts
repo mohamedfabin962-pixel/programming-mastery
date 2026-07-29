@@ -2,6 +2,8 @@ import { courseSchemas } from './course.js';
 import { lessonSchemas } from './lesson.js';
 import { progressSchemas } from './progress.js';
 import { quizSchemas } from './quiz.js';
+import { questionSchemas } from './question.js';
+import { choiceSchemas } from './choice.js';
 
 /**
  * OpenAPI schema components from different domain validations.
@@ -12,4 +14,6 @@ export const schemas = {
   ...lessonSchemas,
   ...progressSchemas,
   ...quizSchemas,
+  ...questionSchemas,
+  ...choiceSchemas,
 };

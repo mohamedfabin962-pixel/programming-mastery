@@ -1,73 +1,28 @@
-export const quizPaths = {
-  '/api/lessons/{lessonSlug}/quizzes': {
-    get: {
-      tags: ['Quizzes'],
-      summary: 'Retrieve all published quizzes for a lesson',
-      description:
-        'Returns a list of published quizzes belonging to the specified published lesson.',
-      parameters: [
-        {
-          name: 'lessonSlug',
-          in: 'path',
-          required: true,
-          schema: { type: 'string' },
-          description: 'Unique lesson slug identifier',
-        },
-      ],
-      responses: {
-        200: {
-          description: 'A list of published quiz metadata items',
-          content: {
-            'application/json': {
-              schema: {
-                type: 'object',
-                properties: {
-                  success: { type: 'boolean', example: true },
-                  data: {
-                    type: 'array',
-                    items: { $ref: '#/components/schemas/QuizMetadataResponse' },
-                  },
-                },
-                required: ['success', 'data'],
-              },
-            },
-          },
-        },
-        404: {
-          description: 'Lesson not found or not published',
-          content: {
-            'application/json': {
-              schema: { $ref: '#/components/schemas/NotFoundError' },
-            },
-          },
-        },
-      },
-    },
-  },
-  '/api/quizzes': {
+export const choicePaths = {
+  '/api/choices': {
     post: {
-      tags: ['Quizzes'],
-      summary: 'Create a new quiz',
-      description: 'Creates a new unpublished quiz domain entry. Requires authentication.',
+      tags: ['Choices'],
+      summary: 'Create a new choice',
+      description: 'Creates a new choice for a question. Requires authentication.',
       security: [{ bearerAuth: [] }],
       requestBody: {
         required: true,
         content: {
           'application/json': {
-            schema: { $ref: '#/components/schemas/CreateQuizInput' },
+            schema: { $ref: '#/components/schemas/CreateChoiceInput' },
           },
         },
       },
       responses: {
         201: {
-          description: 'Quiz created successfully',
+          description: 'Choice created successfully',
           content: {
             'application/json': {
               schema: {
                 type: 'object',
                 properties: {
                   success: { type: 'boolean', example: true },
-                  data: { $ref: '#/components/schemas/QuizMetadataResponse' },
+                  data: { $ref: '#/components/schemas/Choice' },
                 },
                 required: ['success', 'data'],
               },
@@ -91,7 +46,7 @@ export const quizPaths = {
           },
         },
         404: {
-          description: 'Lesson slug not found',
+          description: 'Question not found',
           content: {
             'application/json': {
               schema: { $ref: '#/components/schemas/NotFoundError' },
@@ -99,7 +54,7 @@ export const quizPaths = {
           },
         },
         409: {
-          description: 'Quiz with title already exists in lesson',
+          description: 'Choice order or correct answer rule conflict',
           content: {
             'application/json': {
               schema: { $ref: '#/components/schemas/ErrorResponse' },
@@ -109,50 +64,11 @@ export const quizPaths = {
       },
     },
   },
-  '/api/quizzes/{id}': {
-    get: {
-      tags: ['Quizzes'],
-      summary: 'Retrieve single published quiz metadata by ID',
-      description: 'Returns metadata for a single published quiz.',
-      parameters: [
-        {
-          name: 'id',
-          in: 'path',
-          required: true,
-          schema: { type: 'string', format: 'uuid' },
-          description: 'Unique quiz UUID identifier',
-        },
-      ],
-      responses: {
-        200: {
-          description: 'Quiz metadata object',
-          content: {
-            'application/json': {
-              schema: {
-                type: 'object',
-                properties: {
-                  success: { type: 'boolean', example: true },
-                  data: { $ref: '#/components/schemas/QuizMetadataResponse' },
-                },
-                required: ['success', 'data'],
-              },
-            },
-          },
-        },
-        404: {
-          description: 'Quiz not found, not published, or belongs to unpublished lesson',
-          content: {
-            'application/json': {
-              schema: { $ref: '#/components/schemas/NotFoundError' },
-            },
-          },
-        },
-      },
-    },
+  '/api/choices/{id}': {
     put: {
-      tags: ['Quizzes'],
-      summary: 'Update an existing quiz',
-      description: "Updates a quiz's title and description. Requires authentication.",
+      tags: ['Choices'],
+      summary: 'Update a choice',
+      description: 'Updates properties of an existing choice by ID. Requires authentication.',
       security: [{ bearerAuth: [] }],
       parameters: [
         {
@@ -160,27 +76,27 @@ export const quizPaths = {
           in: 'path',
           required: true,
           schema: { type: 'string', format: 'uuid' },
-          description: 'Unique quiz UUID identifier',
+          description: 'Choice unique ID identifier',
         },
       ],
       requestBody: {
         required: true,
         content: {
           'application/json': {
-            schema: { $ref: '#/components/schemas/UpdateQuizInput' },
+            schema: { $ref: '#/components/schemas/UpdateChoiceInput' },
           },
         },
       },
       responses: {
         200: {
-          description: 'Quiz updated successfully',
+          description: 'Choice updated successfully',
           content: {
             'application/json': {
               schema: {
                 type: 'object',
                 properties: {
                   success: { type: 'boolean', example: true },
-                  data: { $ref: '#/components/schemas/QuizMetadataResponse' },
+                  data: { $ref: '#/components/schemas/Choice' },
                 },
                 required: ['success', 'data'],
               },
@@ -204,7 +120,7 @@ export const quizPaths = {
           },
         },
         404: {
-          description: 'Quiz not found',
+          description: 'Choice not found',
           content: {
             'application/json': {
               schema: { $ref: '#/components/schemas/NotFoundError' },
@@ -212,7 +128,7 @@ export const quizPaths = {
           },
         },
         409: {
-          description: 'Quiz title already exists in lesson',
+          description: 'Choice order or correct answer rule conflict',
           content: {
             'application/json': {
               schema: { $ref: '#/components/schemas/ErrorResponse' },
@@ -222,10 +138,9 @@ export const quizPaths = {
       },
     },
     delete: {
-      tags: ['Quizzes'],
-      summary: 'Delete a quiz by ID',
-      description:
-        'Permanently deletes a quiz, cascading to delete questions and choices. Requires authentication.',
+      tags: ['Choices'],
+      summary: 'Delete a choice by ID',
+      description: 'Permanently deletes a choice by ID. Requires authentication.',
       security: [{ bearerAuth: [] }],
       parameters: [
         {
@@ -233,12 +148,12 @@ export const quizPaths = {
           in: 'path',
           required: true,
           schema: { type: 'string', format: 'uuid' },
-          description: 'Unique quiz UUID identifier',
+          description: 'Choice unique ID identifier',
         },
       ],
       responses: {
         200: {
-          description: 'Quiz deleted successfully',
+          description: 'Choice deleted successfully',
           content: {
             'application/json': {
               schema: {
@@ -267,7 +182,7 @@ export const quizPaths = {
           },
         },
         404: {
-          description: 'Quiz not found',
+          description: 'Choice not found',
           content: {
             'application/json': {
               schema: { $ref: '#/components/schemas/NotFoundError' },

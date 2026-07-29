@@ -8,6 +8,8 @@ import courseRouter from './course.js';
 import { lessonRouter, lessonMgmtRouter } from './lesson.js';
 import progressRouter from './progress.js';
 import { lessonQuizRouter, quizRouter } from './quiz.js';
+import questionRouter from './question.js';
+import choiceRouter from './choice.js';
 
 const router: Router = Router();
 
@@ -98,5 +100,7 @@ router.use('/api/lessons', lessonMgmtRouter);
 router.use('/api/lessons', progressRouter);
 router.use('/api/lessons', lessonQuizRouter);
 router.use('/api/quizzes', quizRouter);
+router.use('/api/questions', questionRouter);
+router.use('/api/choices', choiceRouter);
 
 export default router;

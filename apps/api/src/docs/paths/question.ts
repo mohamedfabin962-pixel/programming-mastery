@@ -1,186 +1,28 @@
-export const quizPaths = {
-  '/api/lessons/{lessonSlug}/quizzes': {
-    get: {
-      tags: ['Quizzes'],
-      summary: 'Retrieve all published quizzes for a lesson',
-      description:
-        'Returns a list of published quizzes belonging to the specified published lesson.',
-      parameters: [
-        {
-          name: 'lessonSlug',
-          in: 'path',
-          required: true,
-          schema: { type: 'string' },
-          description: 'Unique lesson slug identifier',
-        },
-      ],
-      responses: {
-        200: {
-          description: 'A list of published quiz metadata items',
-          content: {
-            'application/json': {
-              schema: {
-                type: 'object',
-                properties: {
-                  success: { type: 'boolean', example: true },
-                  data: {
-                    type: 'array',
-                    items: { $ref: '#/components/schemas/QuizMetadataResponse' },
-                  },
-                },
-                required: ['success', 'data'],
-              },
-            },
-          },
-        },
-        404: {
-          description: 'Lesson not found or not published',
-          content: {
-            'application/json': {
-              schema: { $ref: '#/components/schemas/NotFoundError' },
-            },
-          },
-        },
-      },
-    },
-  },
-  '/api/quizzes': {
+export const questionPaths = {
+  '/api/questions': {
     post: {
-      tags: ['Quizzes'],
-      summary: 'Create a new quiz',
-      description: 'Creates a new unpublished quiz domain entry. Requires authentication.',
+      tags: ['Questions'],
+      summary: 'Create a new question',
+      description: 'Creates a new question for a quiz. Requires authentication.',
       security: [{ bearerAuth: [] }],
       requestBody: {
         required: true,
         content: {
           'application/json': {
-            schema: { $ref: '#/components/schemas/CreateQuizInput' },
+            schema: { $ref: '#/components/schemas/CreateQuestionInput' },
           },
         },
       },
       responses: {
         201: {
-          description: 'Quiz created successfully',
+          description: 'Question created successfully',
           content: {
             'application/json': {
               schema: {
                 type: 'object',
                 properties: {
                   success: { type: 'boolean', example: true },
-                  data: { $ref: '#/components/schemas/QuizMetadataResponse' },
-                },
-                required: ['success', 'data'],
-              },
-            },
-          },
-        },
-        400: {
-          description: 'Validation failed',
-          content: {
-            'application/json': {
-              schema: { $ref: '#/components/schemas/ValidationError' },
-            },
-          },
-        },
-        401: {
-          description: 'Unauthorized',
-          content: {
-            'application/json': {
-              schema: { $ref: '#/components/schemas/UnauthorizedError' },
-            },
-          },
-        },
-        404: {
-          description: 'Lesson slug not found',
-          content: {
-            'application/json': {
-              schema: { $ref: '#/components/schemas/NotFoundError' },
-            },
-          },
-        },
-        409: {
-          description: 'Quiz with title already exists in lesson',
-          content: {
-            'application/json': {
-              schema: { $ref: '#/components/schemas/ErrorResponse' },
-            },
-          },
-        },
-      },
-    },
-  },
-  '/api/quizzes/{id}': {
-    get: {
-      tags: ['Quizzes'],
-      summary: 'Retrieve single published quiz metadata by ID',
-      description: 'Returns metadata for a single published quiz.',
-      parameters: [
-        {
-          name: 'id',
-          in: 'path',
-          required: true,
-          schema: { type: 'string', format: 'uuid' },
-          description: 'Unique quiz UUID identifier',
-        },
-      ],
-      responses: {
-        200: {
-          description: 'Quiz metadata object',
-          content: {
-            'application/json': {
-              schema: {
-                type: 'object',
-                properties: {
-                  success: { type: 'boolean', example: true },
-                  data: { $ref: '#/components/schemas/QuizMetadataResponse' },
-                },
-                required: ['success', 'data'],
-              },
-            },
-          },
-        },
-        404: {
-          description: 'Quiz not found, not published, or belongs to unpublished lesson',
-          content: {
-            'application/json': {
-              schema: { $ref: '#/components/schemas/NotFoundError' },
-            },
-          },
-        },
-      },
-    },
-    put: {
-      tags: ['Quizzes'],
-      summary: 'Update an existing quiz',
-      description: "Updates a quiz's title and description. Requires authentication.",
-      security: [{ bearerAuth: [] }],
-      parameters: [
-        {
-          name: 'id',
-          in: 'path',
-          required: true,
-          schema: { type: 'string', format: 'uuid' },
-          description: 'Unique quiz UUID identifier',
-        },
-      ],
-      requestBody: {
-        required: true,
-        content: {
-          'application/json': {
-            schema: { $ref: '#/components/schemas/UpdateQuizInput' },
-          },
-        },
-      },
-      responses: {
-        200: {
-          description: 'Quiz updated successfully',
-          content: {
-            'application/json': {
-              schema: {
-                type: 'object',
-                properties: {
-                  success: { type: 'boolean', example: true },
-                  data: { $ref: '#/components/schemas/QuizMetadataResponse' },
+                  data: { $ref: '#/components/schemas/Question' },
                 },
                 required: ['success', 'data'],
               },
@@ -212,7 +54,81 @@ export const quizPaths = {
           },
         },
         409: {
-          description: 'Quiz title already exists in lesson',
+          description: 'Question order already exists in quiz',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/ErrorResponse' },
+            },
+          },
+        },
+      },
+    },
+  },
+  '/api/questions/{id}': {
+    put: {
+      tags: ['Questions'],
+      summary: 'Update a question',
+      description: 'Updates properties of an existing question by ID. Requires authentication.',
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+          description: 'Question unique ID identifier',
+        },
+      ],
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: { $ref: '#/components/schemas/UpdateQuestionInput' },
+          },
+        },
+      },
+      responses: {
+        200: {
+          description: 'Question updated successfully',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  success: { type: 'boolean', example: true },
+                  data: { $ref: '#/components/schemas/Question' },
+                },
+                required: ['success', 'data'],
+              },
+            },
+          },
+        },
+        400: {
+          description: 'Validation failed',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/ValidationError' },
+            },
+          },
+        },
+        401: {
+          description: 'Unauthorized',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/UnauthorizedError' },
+            },
+          },
+        },
+        404: {
+          description: 'Question not found',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/NotFoundError' },
+            },
+          },
+        },
+        409: {
+          description: 'Question order already exists in quiz',
           content: {
             'application/json': {
               schema: { $ref: '#/components/schemas/ErrorResponse' },
@@ -222,10 +138,10 @@ export const quizPaths = {
       },
     },
     delete: {
-      tags: ['Quizzes'],
-      summary: 'Delete a quiz by ID',
+      tags: ['Questions'],
+      summary: 'Delete a question by ID',
       description:
-        'Permanently deletes a quiz, cascading to delete questions and choices. Requires authentication.',
+        'Permanently deletes a question, cascading to delete choices. Requires authentication.',
       security: [{ bearerAuth: [] }],
       parameters: [
         {
@@ -233,12 +149,12 @@ export const quizPaths = {
           in: 'path',
           required: true,
           schema: { type: 'string', format: 'uuid' },
-          description: 'Unique quiz UUID identifier',
+          description: 'Question unique ID identifier',
         },
       ],
       responses: {
         200: {
-          description: 'Quiz deleted successfully',
+          description: 'Question deleted successfully',
           content: {
             'application/json': {
               schema: {
@@ -267,7 +183,7 @@ export const quizPaths = {
           },
         },
         404: {
-          description: 'Quiz not found',
+          description: 'Question not found',
           content: {
             'application/json': {
               schema: { $ref: '#/components/schemas/NotFoundError' },

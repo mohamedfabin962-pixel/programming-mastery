@@ -13,4 +13,30 @@ export const quizSchemas = {
     },
     required: ['id', 'title', 'questionCount'],
   },
+  CreateQuizInput: {
+    type: 'object',
+    properties: {
+      lessonSlug: { type: 'string', example: 'getting-started-with-ts' },
+      title: { type: 'string', example: 'TypeScript Basics Quiz' },
+      description: {
+        type: 'string',
+        example: 'Test your basic understanding of types and compilation.',
+        nullable: true,
+      },
+    },
+    required: ['lessonSlug', 'title'],
+    additionalProperties: false,
+  },
+  UpdateQuizInput: {
+    type: 'object',
+    properties: {
+      title: { type: 'string', example: 'TypeScript Basics Quiz' },
+      description: {
+        type: 'string',
+        example: 'Test your basic understanding of types and compilation.',
+        nullable: true,
+      },
+    },
+    additionalProperties: false,
+  },
 };
