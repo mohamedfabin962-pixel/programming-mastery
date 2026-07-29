@@ -30,4 +30,12 @@ export const progressSchemas = {
     },
     required: ['completed', 'completedAt'],
   },
+  UpdateLessonProgressInput: {
+    type: 'object',
+    properties: {
+      completed: { type: 'boolean', example: true },
+    },
+    required: ['completed'],
+    additionalProperties: false,
+  },
 };
