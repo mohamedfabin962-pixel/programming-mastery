@@ -23,6 +23,7 @@ model User {
   progress      Progress[]
   attempts      QuizAttempt[]
   enrollments   Enrollment[]
+  reviews       Review[]
 
   @@map("user")
 }
@@ -84,10 +85,13 @@ model Course {
   difficulty   Difficulty
   languageCode String
   isPublished  Boolean    @default(false)
+  averageRating Float     @default(0)
+  reviewCount  Int        @default(0)
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
   lessons      Lesson[]
   enrollments  Enrollment[]
+  reviews      Review[]
 
   @@map("course")
 }
@@ -228,5 +232,20 @@ model Enrollment {
 
   @@unique([userId, courseId])
   @@map("enrollment")
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId  String
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  rating    Int
+  review    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, courseId])
+  @@map("review")
 }
 
