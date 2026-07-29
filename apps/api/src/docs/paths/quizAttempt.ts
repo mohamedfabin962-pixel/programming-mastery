@@ -143,4 +143,130 @@ export const quizAttemptPaths = {
       },
     },
   },
+  '/api/quiz-attempts/{attemptId}/answers': {
+    post: {
+      tags: ['Quiz Attempts'],
+      summary: 'Submit an answer to a question in a quiz attempt',
+      description:
+        'Submits or updates an answer choice for a specific question inside an in-progress quiz attempt. Requires authentication.',
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        {
+          name: 'attemptId',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+          description: 'Quiz attempt UUID identifier',
+        },
+      ],
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: { $ref: '#/components/schemas/SubmitAnswerInput' },
+          },
+        },
+      },
+      responses: {
+        200: {
+          description: 'Answer submitted successfully',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  success: { type: 'boolean', example: true },
+                  data: { $ref: '#/components/schemas/QuestionAnswer' },
+                },
+                required: ['success', 'data'],
+              },
+            },
+          },
+        },
+        400: {
+          description: 'Validation failed or attempt is not in progress',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/ValidationError' },
+            },
+          },
+        },
+        401: {
+          description: 'Unauthorized',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/UnauthorizedError' },
+            },
+          },
+        },
+        404: {
+          description: 'Quiz attempt, question, or choice not found',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/NotFoundError' },
+            },
+          },
+        },
+      },
+    },
+  },
+  '/api/quiz-attempts/{attemptId}/complete': {
+    post: {
+      tags: ['Quiz Attempts'],
+      summary: 'Complete a quiz attempt',
+      description:
+        'Marks an active in-progress quiz attempt as completed, scoring all answers. Requires authentication.',
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        {
+          name: 'attemptId',
+          in: 'path',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+          description: 'Quiz attempt UUID identifier',
+        },
+      ],
+      responses: {
+        200: {
+          description: 'Quiz attempt completed successfully',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  success: { type: 'boolean', example: true },
+                  data: { $ref: '#/components/schemas/CompleteAttemptResponse' },
+                },
+                required: ['success', 'data'],
+              },
+            },
+          },
+        },
+        400: {
+          description: 'Validation failed, attempt not in progress, or questions unanswered',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/ValidationError' },
+            },
+          },
+        },
+        401: {
+          description: 'Unauthorized',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/UnauthorizedError' },
+            },
+          },
+        },
+        404: {
+          description: 'Quiz attempt not found',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/NotFoundError' },
+            },
+          },
+        },
+      },
+    },
+  },
 };

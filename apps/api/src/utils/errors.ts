@@ -98,3 +98,12 @@ export class TooManyRequestsError extends AppError {
     super(message, 429, errorCode, true, null);
   }
 }
+
+/**
+ * 400 Validation Error
+ */
+export class ValidationError extends AppError {
+  constructor(message: string = 'Validation Error', details: unknown = null) {
+    super(message, 400, 'VALIDATION_ERROR', true, details);
+  }
+}

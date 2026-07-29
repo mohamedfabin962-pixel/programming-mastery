@@ -49,3 +49,41 @@ export async function getMyAttempts(
     next(error);
   }
 }
+
+/**
+ * Controller to submit an answer to a question in a quiz attempt.
+ */
+export async function submitAnswer(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const { attemptId } = req.params;
+    const userId = req.user!.id;
+    const { questionId, choiceId } = req.body;
+    const answer = await attemptService.submitAnswer(
+      attemptId as string,
+      userId,
+      questionId as string,
+      choiceId as string,
+    );
+    res.status(200).json({ success: true, data: answer });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/**
+ * Controller to complete an active quiz attempt.
+ */
+export async function completeAttempt(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const { attemptId } = req.params;
+    const userId = req.user!.id;
+    const result = await attemptService.completeAttempt(attemptId as string, userId);
+    res.status(200).json({ success: true, data: result });
+  } catch (error) {
+    next(error);
+  }
+}
