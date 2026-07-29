@@ -7,3 +7,11 @@ export const enrollInCourseSchema = z
   .strict();
 
 export type EnrollInCourseInput = z.infer<typeof enrollInCourseSchema>;
+
+export const courseSlugParamSchema = z
+  .object({
+    courseSlug: z.string().trim().min(1, 'Course slug is required.'),
+  })
+  .strict();
+
+export type CourseSlugParamInput = z.infer<typeof courseSlugParamSchema>;

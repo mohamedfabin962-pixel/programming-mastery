@@ -92,4 +92,161 @@ export const enrollmentPaths = {
       },
     },
   },
+  '/api/enrollments/{courseSlug}': {
+    get: {
+      tags: ['Enrollments'],
+      summary: "Get authenticated user's enrollment for a specific course",
+      description:
+        "Returns the authenticated user's enrollment for the course identified by courseSlug. Requires authentication.",
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        {
+          name: 'courseSlug',
+          in: 'path',
+          required: true,
+          schema: { type: 'string' },
+          description: 'Course slug identifier',
+        },
+      ],
+      responses: {
+        200: {
+          description: 'Enrollment retrieved successfully',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  success: { type: 'boolean', example: true },
+                  data: { $ref: '#/components/schemas/Enrollment' },
+                },
+                required: ['success', 'data'],
+              },
+            },
+          },
+        },
+        401: {
+          description: 'Unauthorized',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/UnauthorizedError' },
+            },
+          },
+        },
+        404: {
+          description: 'Course or enrollment not found',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/NotFoundError' },
+            },
+          },
+        },
+      },
+    },
+    delete: {
+      tags: ['Enrollments'],
+      summary: 'Unenroll from a course',
+      description:
+        "Deletes the authenticated user's enrollment for the course identified by courseSlug. Requires authentication.",
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        {
+          name: 'courseSlug',
+          in: 'path',
+          required: true,
+          schema: { type: 'string' },
+          description: 'Course slug identifier',
+        },
+      ],
+      responses: {
+        200: {
+          description: 'Unenrolled successfully',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  success: { type: 'boolean', example: true },
+                  data: {
+                    type: 'object',
+                    properties: {
+                      success: { type: 'boolean', example: true },
+                    },
+                    required: ['success'],
+                  },
+                },
+                required: ['success', 'data'],
+              },
+            },
+          },
+        },
+        401: {
+          description: 'Unauthorized',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/UnauthorizedError' },
+            },
+          },
+        },
+        404: {
+          description: 'Course or enrollment not found',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/NotFoundError' },
+            },
+          },
+        },
+      },
+    },
+  },
+  '/api/enrollments/{courseSlug}/last-access': {
+    patch: {
+      tags: ['Enrollments'],
+      summary: "Update user's last accessed timestamp for a course",
+      description:
+        "Updates the last accessed timestamp for the authenticated user's course enrollment to the current time. Requires authentication.",
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        {
+          name: 'courseSlug',
+          in: 'path',
+          required: true,
+          schema: { type: 'string' },
+          description: 'Course slug identifier',
+        },
+      ],
+      responses: {
+        200: {
+          description: 'Last access timestamp updated successfully',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  success: { type: 'boolean', example: true },
+                  data: { $ref: '#/components/schemas/Enrollment' },
+                },
+                required: ['success', 'data'],
+              },
+            },
+          },
+        },
+        401: {
+          description: 'Unauthorized',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/UnauthorizedError' },
+            },
+          },
+        },
+        404: {
+          description: 'Course or enrollment not found',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/NotFoundError' },
+            },
+          },
+        },
+      },
+    },
+  },
 };

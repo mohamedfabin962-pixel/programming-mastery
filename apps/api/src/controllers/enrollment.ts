@@ -35,3 +35,57 @@ export async function getMyEnrollments(
     next(error);
   }
 }
+
+/**
+ * Controller to retrieve enrollment details for a specific course by slug.
+ */
+export async function getCourseEnrollment(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const { courseSlug } = req.params;
+    const userId = req.user!.id;
+    const enrollment = await enrollmentService.getCourseEnrollment(courseSlug as string, userId);
+    res.status(200).json({ success: true, data: enrollment });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/**
+ * Controller to update the last accessed timestamp for a course enrollment.
+ */
+export async function updateLastAccess(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const { courseSlug } = req.params;
+    const userId = req.user!.id;
+    const enrollment = await enrollmentService.updateLastAccess(courseSlug as string, userId);
+    res.status(200).json({ success: true, data: enrollment });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/**
+ * Controller to delete a course enrollment (unenroll).
+ */
+export async function deleteEnrollment(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const { courseSlug } = req.params;
+    const userId = req.user!.id;
+    const result = await enrollmentService.deleteEnrollment(courseSlug as string, userId);
+    res.status(200).json({ success: true, data: result });
+  } catch (error) {
+    next(error);
+  }
+}
