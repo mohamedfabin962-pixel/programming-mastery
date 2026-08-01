@@ -14,6 +14,7 @@ import quizAttemptRouter from './quizAttempt.js';
 import enrollmentRouter from './enrollment.js';
 import dashboardRouter from './dashboard.js';
 import reviewRouter from './review.js';
+import certificateRouter from './certificate.js';
 
 const router: Router = Router();
 
@@ -110,5 +111,6 @@ router.use('/api/quiz-attempts', quizAttemptRouter);
 router.use('/api/enrollments', enrollmentRouter);
 router.use('/api/dashboard', dashboardRouter);
 router.use('/api/reviews', reviewRouter);
+router.use('/api/certificates', certificateRouter);
 
 export default router;

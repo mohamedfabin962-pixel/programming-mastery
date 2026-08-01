@@ -24,6 +24,7 @@ model User {
   attempts      QuizAttempt[]
   enrollments   Enrollment[]
   reviews       Review[]
+  certificates  Certificate[]
 
   @@map("user")
 }
@@ -92,6 +93,7 @@ model Course {
   lessons      Lesson[]
   enrollments  Enrollment[]
   reviews      Review[]
+  certificates Certificate[]
 
   @@map("course")
 }
@@ -247,5 +249,19 @@ model Review {
 
   @@unique([userId, courseId])
   @@map("review")
+}
+
+model Certificate {
+  id                String   @id @default(uuid())
+  userId            String
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId          String
+  course            Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  certificateNumber String   @unique
+  issuedAt          DateTime @default(now())
+  createdAt         DateTime @default(now())
+
+  @@unique([userId, courseId])
+  @@map("certificate")
 }
 

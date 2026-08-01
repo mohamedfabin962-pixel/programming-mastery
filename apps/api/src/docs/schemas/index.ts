@@ -8,6 +8,7 @@ import { quizAttemptSchemas } from './quizAttempt.js';
 import { enrollmentSchemas } from './enrollment.js';
 import { dashboardSchemas } from './dashboard.js';
 import { reviewSchemas } from './review.js';
+import { certificateSchemas } from './certificate.js';
 
 /**
  * OpenAPI schema components from different domain validations.
@@ -24,4 +25,5 @@ export const schemas = {
   ...enrollmentSchemas,
   ...dashboardSchemas,
   ...reviewSchemas,
+  ...certificateSchemas,
 };
