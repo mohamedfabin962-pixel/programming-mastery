@@ -15,6 +15,7 @@ import enrollmentRouter from './enrollment.js';
 import dashboardRouter from './dashboard.js';
 import reviewRouter from './review.js';
 import certificateRouter from './certificate.js';
+import learningNodeRouter from './learningNode.js';
 
 const router: Router = Router();
 
@@ -112,5 +113,6 @@ router.use('/api/enrollments', enrollmentRouter);
 router.use('/api/dashboard', dashboardRouter);
 router.use('/api/reviews', reviewRouter);
 router.use('/api/certificates', certificateRouter);
+router.use('/api/nodes', learningNodeRouter);
 
 export default router;

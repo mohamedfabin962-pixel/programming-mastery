@@ -27,3 +27,23 @@ export async function requireAuth(req: Request, _res: Response, next: NextFuncti
     next(error);
   }
 }
+
+/**
+ * Express middleware to optionally extract session and attach req.user if a valid session is present.
+ * Does not reject requests if no session is present.
+ */
+export async function optionalAuth(req: Request, _res: Response, next: NextFunction) {
+  try {
+    const session = await auth.api.getSession({
+      headers: fromNodeHeaders(req.headers),
+    });
+
+    if (session) {
+      req.user = session.user;
+      req.session = session.session;
+    }
+    next();
+  } catch (_error) {
+    next();
+  }
+}

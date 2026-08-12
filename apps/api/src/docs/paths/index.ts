@@ -9,6 +9,7 @@ import { enrollmentPaths } from './enrollment.js';
 import { dashboardPaths } from './dashboard.js';
 import { reviewPaths } from './review.js';
 import { certificatePaths } from './certificate.js';
+import { learningNodePaths } from './learningNode.js';
 
 /**
  * OpenAPI path fragments from different route modules.
@@ -26,4 +27,5 @@ export const paths = {
   ...dashboardPaths,
   ...reviewPaths,
   ...certificatePaths,
+  ...learningNodePaths,
 };

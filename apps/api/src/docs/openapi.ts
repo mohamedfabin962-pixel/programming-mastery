@@ -22,6 +22,7 @@ export const openApiSpec = {
     { name: 'Courses', description: 'Course management and navigation' },
     { name: 'Lessons', description: 'Lessons and learning content' },
     { name: 'Progress', description: 'Learner progress tracking' },
+    { name: 'Learning Nodes', description: 'World Map and Knowledge Tree node graph management' },
     { name: 'Admin', description: 'Administrative and moderator actions' },
   ],
   components: {
